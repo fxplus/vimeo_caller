@@ -1,0 +1,14 @@
+{
+    "name": "tom/vimeo_caller",
+    "description": "test vimeo api",
+    "authors": [
+        {
+            "name": "Tom Readings",
+            "email": "digitisatom@gmail.com"
+        }
+    ],
+    "require": {
+        "vimeo/vimeo-api": "dev-master",
+        "oodle/krumo": "dev-master",
+    }
+}

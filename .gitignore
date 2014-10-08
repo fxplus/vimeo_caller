@@ -1,0 +1,7 @@
+vendor
+composer.lock
+config.json
+.DS_Store
+!composer.json
+!config.example.json
+*.json
