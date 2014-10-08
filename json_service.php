@@ -39,7 +39,7 @@ if (!file_exists($cachefile) || filemtime($cachefile) < strtotime("-". $cachetim
         // simplify list of videos
         foreach($channel['body']['data'] as $video) {
             $item['name'] = $video['name'];
-            $item['uri'] = 'http://vimeo.com'. $video['uri'];
+            $item['uri'] = 'https://vimeo.com'. $video['uri'];
             $item['guid'] = $video['uri'];
             $item['created_time'] = $video['created_time'];
             $item['description'] = $video['description'];
