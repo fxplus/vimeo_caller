@@ -5,36 +5,44 @@ use Vimeo\Vimeo;
 ini_set('display_errors', 'On');
 error_reporting(E_ALL);
 
-// settings
-$cachefile = "vimeo_channel.json";
-$cachetime = "1 second";
+$config = json_decode(file_get_contents('./config.json'), true);
 
-if (!file_exists($cachefile) || filemtime($cachefile) < strtotime("-". $cachetime)) {
-    // call vimeo for channel videos
+if (!file_exists($config['cache_file']) || filemtime($config['cache_file']) < strtotime("-". $config['cache_time'])) {
+    
+    // call vimeo to get a list of videos for channel
     require_once('vendor/autoload.php');
-    $config = json_decode(file_get_contents('./config.json'), true);
-
     $lib = new Vimeo($config['client_id'], $config['client_secret']);
-
     $videos = array();
 
     if (!empty($config['access_token'])) {
         $lib->setToken($config['access_token']);
         $channel = $lib->request($config['channel_url']);
-        // simplify list of videos
-        foreach($channel['body']['data'] as $video) {
-            $item['name'] = $video['name'];
-            $item['link'] = $video['link'];
-            $item['uri'] = $video['uri'];
-            $item['created_time'] = $video['created_time'];
-            $item['description'] = $video['description'];
-            $videos[] = $item;
+        if ($config['simplify_json']) {
+            // simplify list of videos
+            foreach($channel['body']['data'] as $video) {
+                $item = array();
+                $item['name'] = $video['name'];
+                $item['link'] = $video['link'];
+                $item['uri'] = $video['uri'];
+                $item['created_time'] = $video['created_time'];
+                $item['description'] = $video['description'];
+                if (count($video['tags'])) {
+                    foreach ($video['tags'] as $tag) {
+                        $item['tags'][$tag['canonical']] = $tag['tag'];
+                    }
+                    // $item['taglist'] = implode(',', $item['tags']);
+                }
+                $videos[] = $item;
+            }
+        } else {
+            // return vimeo channel data unadulterated
+            $videos = $channel['body']['data'];
         }
     } 
     $data = json_encode($videos);
-    file_put_contents($cachefile, $data);
+    file_put_contents($config['cache_file'], $data);
     echo $data;
 } else {
     // deliver cached channel information
-    echo file_get_contents($cachefile);
+    echo file_get_contents($config['cache_file']);
 }
