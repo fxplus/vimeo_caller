@@ -2,7 +2,7 @@
     "client_id" : "",
     "client_secret" : "",
     "access_token" : "",
-    "channel_url" : "",
+    "channel" : "",
     "cache_file" : "vimeo_channel.json",
     "cache_time" : "30 minutes",
     "simplify_json" : true
