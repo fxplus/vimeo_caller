@@ -6,8 +6,13 @@ ini_set('display_errors', 'On');
 error_reporting(E_ALL);
 
 $config = json_decode(file_get_contents('./config.json'), true);
+require_once('includes/helpers.php');
 
-if (!file_exists($config['cache_file']) || filemtime($config['cache_file']) < strtotime("-". $config['cache_time'])) {
+$channel_id = (isset($_GET['channel'])) ? \Vimeocaller\Helpers\safename($_GET['channel']) : $config['channel_id'];
+$cache_file = 'cache/'. $channel_id .'.json';
+$api_url = '/channels/'. $channel_id .'/videos';
+
+if (!file_exists($cache_file) || filemtime($cache_file) < strtotime("-". $config['cache_time'])) {
     
     // call vimeo to get a list of videos for channel
     require_once('vendor/autoload.php');
@@ -15,43 +20,21 @@ if (!file_exists($config['cache_file']) || filemtime($config['cache_file']) < st
 
     if (!empty($config['access_token'])) {
         $lib->setToken($config['access_token']);
-        $api_url = '/channels/'. $config['channel'] .'/videos'
         $channel = $lib->request($api_url);
         if ($config['simplify_json']) {
-            $videos = simplify_json($channel);
+            $videos = \Vimeocaller\Helpers\simplify_json($channel);
         } else {
             // return vimeo channel data unadulterated
             $videos = $channel['body']['data'];
         }
-    } 
+    }
     $data = json_encode($videos);
-    file_put_contents($config['cache_file'], $data);
+    (count($videos))? file_put_contents('cache/'. $channel_id .'.json', $data): null;
     echo $data;
+
 } else {
     // deliver cached channel information
-    echo file_get_contents($config['cache_file']);
+
+    echo file_get_contents($cache_file);
 }
 
-function simplify_json($channel) {
-    if (isset($channel['body']['data'])) {
-        foreach($channel['body']['data'] as $video) {
-            $item = array();
-            $item['name'] = $video['name'];
-            $item['link'] = $video['link'];
-            $item['uri'] = $video['uri'];
-            $item['created_time'] = $video['created_time'];
-            $item['description'] = $video['description'];
-            if (count($video['tags'])) {
-                foreach ($video['tags'] as $tag) {
-                    $item['tags'][$tag['canonical']] = $tag['tag'];
-                }
-                // $item['taglist'] = implode(',', $item['tags']);
-            }
-            $videos[] = $item;
-        }
-    } 
-    else {
-        $videos = array();
-    }
-    return $videos;
-}
