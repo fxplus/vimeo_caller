@@ -8,6 +8,7 @@
         }
     ],
     "require": {
-        "vimeo/vimeo-api": "dev-master"
+        "vimeo/vimeo-api": "dev-master",
+        "oodle/krumo": "dev-master"
     }
 }

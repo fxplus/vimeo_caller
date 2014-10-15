@@ -16,23 +16,27 @@ if (!file_exists($config['cache_file']) || filemtime($config['cache_file']) < st
 
     if (!empty($config['access_token'])) {
         $lib->setToken($config['access_token']);
-        $channel = $lib->request($config['channel_url']);
+        $api_url = '/channels/'. $config['channel'] .'/videos'
+        $channel = $lib->request($api_url);
+        k($channel);
         if ($config['simplify_json']) {
             // simplify list of videos
-            foreach($channel['body']['data'] as $video) {
-                $item = array();
-                $item['name'] = $video['name'];
-                $item['link'] = $video['link'];
-                $item['uri'] = $video['uri'];
-                $item['created_time'] = $video['created_time'];
-                $item['description'] = $video['description'];
-                if (count($video['tags'])) {
-                    foreach ($video['tags'] as $tag) {
-                        $item['tags'][$tag['canonical']] = $tag['tag'];
+            if (isset($channel['body']['data'])) {
+                foreach($channel['body']['data'] as $video) {
+                    $item = array();
+                    $item['name'] = $video['name'];
+                    $item['link'] = $video['link'];
+                    $item['uri'] = $video['uri'];
+                    $item['created_time'] = $video['created_time'];
+                    $item['description'] = $video['description'];
+                    if (count($video['tags'])) {
+                        foreach ($video['tags'] as $tag) {
+                            $item['tags'][$tag['canonical']] = $tag['tag'];
+                        }
+                        // $item['taglist'] = implode(',', $item['tags']);
                     }
-                    // $item['taglist'] = implode(',', $item['tags']);
+                    $videos[] = $item;
                 }
-                $videos[] = $item;
             }
         } else {
             // return vimeo channel data unadulterated
