@@ -5,3 +5,5 @@ config.json
 !composer.json
 !config.example.json
 *.json
+cache/*
+!cache/response.example.json
