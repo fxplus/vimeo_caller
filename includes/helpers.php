@@ -24,6 +24,18 @@ function simplify_json($channel) {
     return $videos;
 }
 
+function list_titles($channel) {
+    if (isset($channel['body']['data'])) {
+        foreach($channel['body']['data'] as $video) {
+            $videos[] = $video['name'];
+        }
+    } 
+    else {
+        $videos = array();
+    }
+    return $videos;
+}
+
 function safename($name) {
     return preg_replace("/[^a-z0-9.\-]+/i", "", $name);
 }
