@@ -21,7 +21,7 @@ if (!file_exists($cache_file) || filemtime($cache_file) < strtotime("-". $config
     if (!empty($config['access_token'])) {
         $lib->setToken($config['access_token']);
         $channel = $lib->request($api_url);
-        if ($config['simplify_json']) {
+        if ($config['simplify_json'] && !isset($_GET['debug'])) {
             $videos = \Vimeocaller\Helpers\simplify_json($channel);
         } else {
             // return vimeo channel data unadulterated
